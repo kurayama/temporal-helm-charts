@@ -148,7 +148,11 @@ metadata:
     app.kubernetes.io/part-of: {{ .Chart.Name }}
   annotations:
     {{- if .Values.cassandra.enabled }}
-    "helm.sh/hook": post-install,pre-upgrade
+    {{- if .Release.IsInstall }}
+    "helm.sh/hook": post-install
+    {{- else }}
+    "helm.sh/hook": pre-upgrade
+    {{- end }}
     {{- else }}
     "helm.sh/hook": pre-install,pre-upgrade
     {{- end }}
