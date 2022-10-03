@@ -13,14 +13,12 @@ metadata:
     app.kubernetes.io/component: database
     app.kubernetes.io/part-of: {{ .Chart.Name }}
   annotations:
-    {{- if .Values.cassandra.enabled }}
-    "helm.sh/hook": post-install
-    {{- else }}
+    {{- if not .Values.cassandra.enabled }}
     "helm.sh/hook": pre-install
-    {{- end }}
     "helm.sh/hook-weight": "0"
     {{- if not .Values.debug }}
     "helm.sh/hook-delete-policy": hook-succeeded,hook-failed
+    {{- end }}
     {{- end }}
 spec:
   backoffLimit: {{ .Values.schema.setup.backoffLimit }}
@@ -147,8 +145,8 @@ metadata:
     app.kubernetes.io/component: database
     app.kubernetes.io/part-of: {{ .Chart.Name }}
   annotations:
-    {{- if .Values.cassandra.enabled }}
-    "helm.sh/hook": post-install,pre-upgrade
+    {{- if and .Values.cassandra.enabled .Release.IsUpgrade }}
+    "helm.sh/hook": pre-upgrade
     {{- else }}
     "helm.sh/hook": pre-install,pre-upgrade
     {{- end }}
@@ -248,8 +246,6 @@ metadata:
   annotations:
     {{- if .Values.elasticsearch.external }}
     "helm.sh/hook": pre-install
-    {{- else }}
-    "helm.sh/hook": post-install
     {{- end }}
     "helm.sh/hook-weight": "0"
     {{- if not .Values.debug }}
